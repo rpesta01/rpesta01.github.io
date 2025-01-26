@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+    <title>Reis Pestano's HCDE 439 Physical Computing Page!</title>
+
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+
+
+    <h1>Reis Pestano's Assignment 3!</h1>
+    
+    
+    <div class="header">
+      <p>Here is all the documentation for assignment 3:</p>
+    </div>
+
+
+    <div class="header">
+      <img src="IOreal.gif" />
+      
+      
+    </div>
+
+    <div class = "header">
+
+      <p>The light changes color when a photoresistor detects different light levels
+        
+         </p>
+
+    </div>
+
+
+    <div class="header">
+      <img src="A3schem.jpg" />
+      
+      
+    </div>
+
+    <div class = "header">
+
+      <p>I used a 10k ohm resistor for the voltage divider R2 to keep the current low.
+        <br> A high value like 10k ohms is more power efficient.
+         </p>
+
+    </div>
+    
+
+    <div class = "header">
+
+      <p> The variable resistor could be either R1 or R2 because Vout depends on the ratio between the two resistors. 
+         <br> 
+
+    </div>
+
+    <div class="header">
+      <img src="voltagediv.jpg" />
+      
+      
+    </div>
+    <div class = "header">
+
+      <p> 16 bit numbers can go up to 65535 and 10 bit numbers can go to 1023, so the code for mapping would look like:
+         <br> map(sensorValue, 0, 65535, 0, 1023);
+
+
+    </div>
+
+
+    <div class = "header">
+
+      <p>Here is the code for assignment 3:</p>
+
+    </div>
+
+    <div class = "header">
+      <pre><code>
+      
+        // These constants won't change:
+        const int sensorPin = A0;  // pin that the sensor is attached to
+        const int redPin = 11;      // pin that the red LED is attached to
+        const int greenPin = 10; // pin that the green LED is attached to
+        const int bluePin = 9; // pin that the blue LED is attached to
+
+        // variables:
+        int sensorValue = 0; // the sensor value
+        int revSV = 0;  // the reverse sensor value 
+        int sensorMin = 1023;  // minimum sensor value
+        int sensorMax = 0;     // maximum sensor value
+
+
+
+
+        void setup() {
+          // begin Serial
+          Serial.begin(9600);
+
+          // turn on LED to signal the start of the calibration period:
+          pinMode(13, OUTPUT);
+          digitalWrite(13, HIGH);
+
+          // calibrate during the first five seconds
+          while (millis() < 5000) {
+            sensorValue = analogRead(sensorPin);
+            // record the maximum sensor value
+            if (sensorValue > sensorMax) {
+              sensorMax = sensorValue;
+            }
+
+            // record the minimum sensor value
+            if (sensorValue < sensorMin) {
+              sensorMin = sensorValue;
+            }
+          }
+          
+          // notify that calibration is finished
+          digitalWrite(13, LOW);
+        
+        }
+
+        void loop() {
+          // read the sensor:
+          sensorValue = analogRead(sensorPin);
+          revSV = analogRead(sensorPin);
+
+          // in case the sensor value is outside the range seen during calibration
+          sensorValue = constrain(sensorValue, sensorMin, sensorMax);
+          revSV = constrain(revSV, sensorMin, sensorMax);
+        
+          
+          // apply the calibration to the sensor reading
+          // reduced the maximum value to 50 to bring the brightness down
+          sensorValue = map(sensorValue, sensorMin, sensorMax, 0, 50);
+          revSV = map(revSV, sensorMin, sensorMax, 50, 0);
+          
+          // Print the sensorValue to the serial monitor
+          Serial.println(sensorValue);
+
+          // fade the LED using the calibrated value:
+          // if sensor value is below/= 25, the red/blue fade starts
+          if (sensorValue <=  25 ) {
+            // as the sensor value decreases, the red LED increases brightness and blue decreases
+            analogWrite(redPin, revSV);
+            analogWrite(bluePin, sensorValue);
+            // turns green LED off if sensor value is under 25
+            digitalWrite(greenPin, LOW);
+            
+          }
+
+          
+          // above 25 sensor value, the green/blue fade starts and red turns off.
+          else{
+            // as the sensor value decreases, the blue LED increases brightness and the green decreases and vice versa
+            analogWrite(greenPin, sensorValue);
+            analogWrite(bluePin, revSV);
+            digitalWrite(redPin, LOW);
+          }
+          
+        }
+      
+            </code></pre>
+    </div>
+
+    <div class = "header">
+
+      <p> Here is a screenshot of the serial monitor
+         <br> 
+
+    </div>
+
+    <div class="header">
+      <img src="SerialMona3.jpg" />
+      
+      
+    </div>
+  </body>
+</html>
