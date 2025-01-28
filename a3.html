@@ -132,9 +132,8 @@
         
           
           // apply the calibration to the sensor reading
-          // reduced the maximum value to 50 to bring the brightness down
-          sensorValue = map(sensorValue, sensorMin, sensorMax, 0, 50);
-          revSV = map(revSV, sensorMin, sensorMax, 50, 0);
+          sensorValue = map(sensorValue, sensorMin, sensorMax, 0, 255);
+          revSV = map(revSV, sensorMin, sensorMax, 255, 0);
           
           // Print the sensorValue to the serial monitor
           Serial.println(sensorValue);
