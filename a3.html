@@ -139,18 +139,18 @@
           Serial.println(sensorValue);
 
           // fade the LED using the calibrated value:
-          // if sensor value is below/= 25, the red/blue fade starts
-          if (sensorValue <=  25 ) {
+          // if sensor value is below/= 128, the red/blue fade starts
+          if (sensorValue <=  128 ) {
             // as the sensor value decreases, the red LED increases brightness and blue decreases
             analogWrite(redPin, revSV);
             analogWrite(bluePin, sensorValue);
-            // turns green LED off if sensor value is under 25
+            // turns green LED off if sensor value is under 128
             digitalWrite(greenPin, LOW);
             
           }
 
           
-          // above 25 sensor value, the green/blue fade starts and red turns off.
+          // above 128 sensor value, the green/blue fade starts and red turns off.
           else{
             // as the sensor value decreases, the blue LED increases brightness and the green decreases and vice versa
             analogWrite(greenPin, sensorValue);
