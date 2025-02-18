@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+    <title>Reis Pestano's HCDE 439 Physical Computing Page!</title>
+
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+
+
+    <h1>Reis Pestano's Assignment 5!</h1>
+    
+    
+    <div class="header">
+      <p>Here is all the documentation for assignment 5:</p>
+    </div>
+
+    
+    
+    <div class="header">
+      <img src="HV.gif" />
+      <img src="a5circuit.jpg" />
+    
+      
+    </div>
+
+
+    <div class = "header">
+
+      <p>The fan's speed is mapped to the distance data collected from the ultrasonic sensor.
+        <br>
+        <br>
+         </p>
+
+    </div>
+
+
+    <div class="header">
+      <img src="a5schem.jpg" />
+      
+      
+    </div>
+
+    <div class = "header">
+
+      <p>I made a voltage divider using three 100 ohm resistor because the DC motor datasheet said it should run at max 6V. The battery supplies 9V.
+        <br>
+        <br>
+         </p>
+
+    </div>
+
+    <div class = "header">
+
+      <p> <b>Q1: What is the absolute maximum amount of current between pins 2 and 3?
+
+       
+        <br>
+        <br>
+        
+      </b>   
+         
+
+    </div>
+
+    <div class="header">
+      
+      <p>
+        The maximum current is 37.2 Amps at 25 degrees Celsius according to the datasheet.
+      </p>
+      
+    </div>
+
+    <div class = "header">
+
+      <p> 
+        <br>
+        <br>
+        
+        <b>Q2: Draw a schematic for a circuit with using at least your arduino, a DC motor, a flyback diode, and capacitors between power and ground.</b>  
+         <br> 
+         <br>
+
+    </div>
+    <div class="header">
+      <img src="a5q2.jpg" />
+      <br>
+      <br> 
+      <br>
+
+    </div>
+
+    
+
+    
+    <div class = "header">
+
+      <p> <b>Q3:Draw a schematic using at least your arduino, this chip, and two motors. Write (pseudo) code that shows how you would move the motors both forward, both back, then one forward one back, and one back then forward. </b>
+        
+    </div>
+
+    <div class="header">
+      <img src="a5q3.jpg" />
+    
+      
+    </div>
+    <div class = "header">
+      <pre><code>
+
+        //Turns on enable pins to high
+          digitalWrite(5, HIGH)
+          digitalWrite(3, HIGH)
+
+        
+        //Both move forward
+          //Makes left motor move forward
+         digitalWrite(6, LOW)
+         digitalWrite(9,HIGH)
+
+
+         //Makes right motor move forward
+         digitalWrite(11, LOW)
+         digitalWrite(10, HIGH)
+
+
+         delay(2000)
+
+
+        //Both move backward
+         //Makes right motor move backward
+         digitalWrite(11, HIGH)
+         digitalWrite(10, LOW)
+
+
+         //Makes left motor move backward
+         digitalWrite(6, HIGH)
+         digitalWrite(9, LOW)
+
+         delay(2000)
+
+        //Right backward, Left forward
+         //Makes right motor move backward
+         digitalWrite(11, HIGH)
+         digitalWrite(10, LOW)
+
+
+         //Makes left motor move backward
+         digitalWrite(6, LOW)
+         digitalWrite(9, HIGH)
+
+         delay(2000)
+
+
+        //Left backward, right forward
+         //Makes right motor move forward
+         digitalWrite(11, LOW)
+         digitalWrite(10, HIGH)
+
+
+         //Makes left motor move backward
+         digitalWrite(6, HIGH)
+         digitalWrite(9, LOW)
+
+         delay(2000)
+  
+        
+        
+  
+      </code></pre>
+    </div>
+    
+
+    <div class = "header">
+
+      <p>Here is the code for assignment 3:</p>
+
+    </div>
+
+    <div class = "header">
+      <pre><code>
+    
+        //transistor gate pin 
+        const int spin = 3;
+
+        //Trig and echo pins on ultrasonic sensor
+        const int trig = 11;
+        const int echo = 10;
+
+        //Needed for ultrasonic sensing
+        long duration;
+        int distance;
+
+        //Calibration variables
+        int sensorMin = 1023;
+        int sensorMax = 0;
+
+
+        void setup() {
+          // put your setup code here, to run once:
+          pinMode(spin , OUTPUT);
+          pinMode(echo, INPUT);
+          pinMode(trig, OUTPUT);
+
+          Serial.begin(9600);
+
+
+          //Calibration of the ultrasonic sensor
+          while (millis() < 5000) {
+            
+            //Code to run ultrasonic sensor from https://howtomechatronics.com/tutorials/arduino/ultrasonic-sensor-hc-sr04/
+            digitalWrite(trig, HIGH);
+            delayMicroseconds(10);
+            digitalWrite(trig, LOW);
+            // Reads the echoPin, returns the sound wave travel time in microseconds
+            duration = pulseIn(echo, HIGH);
+            // Calculating the distance
+            distance = duration * 0.034 / 2;
+
+            // record the maximum sensor value
+            if (distance > sensorMax) {
+              sensorMax = distance;
+            }
+
+            // record the minimum sensor value
+            if (distance < sensorMin) {
+              sensorMin = distance;
+            }
+          }
+
+          
+
+        }
+
+        void loop() {
+
+
+          int sensor = 0;
+
+          //Same code from the calibration
+          digitalWrite(trig, HIGH);
+          delayMicroseconds(10);
+          digitalWrite(trig, LOW);
+          // Reads the echoPin, returns the sound wave travel time in microseconds
+          duration = pulseIn(echo, HIGH);
+          // Calculating the distance
+          distance = duration * 0.034 / 2;
+          // Prints the distance on the Serial Monitor
+          Serial.print("Distance: ");
+          Serial.println(distance);
+
+          //Constrain and map to analog write values
+          sensor = constrain(distance, sensorMin, sensorMax);
+          sensor = map(sensor, sensorMin, sensorMax, 0, 255);
+
+          //Print to serial monitor
+          Serial.println(sensor);
+
+          //Spin motor
+          analogWrite(spin, sensor);
+          delay(100);
+
+
+
+        }
+      
+            </code></pre>
+    </div>
+
+   
+  </body>
+</html>
