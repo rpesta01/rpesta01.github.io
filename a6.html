@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+    <title>Reis Pestano's HCDE 439 Physical Computing Page!</title>
+
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+
+
+    <h1>Reis Pestano's Assignment 6!</h1>
+    
+    
+    <div class="header">
+      <p>Here is all the documentation for assignment 6:</p>
+    </div>
+
+    
+    
+    <div class="header">
+      <img src="a6web.gif" />
+      <img src="a6circuit.jpg" />
+    
+      
+    </div>
+
+
+    <div class = "header">
+
+      <p>The joystick controls the red ball on screen. When the ball hits the square, the square moves to a random location and the LED lights up.
+        <br>
+        <br>
+         </p>
+
+    </div>
+
+
+    <div class="header">
+      <img src="a6schem.jpg" />
+      
+      
+    </div>
+
+    <div class = "header">
+
+      <p>
+        <br>
+        <br>
+         </p>
+
+    </div>
+
+    
+    <div class = "header">
+
+      <p>Arduino code:</p>
+
+    </div>
+
+    <div class = "header">
+      <pre><code>
+    
+        void setup()
+        {
+          Serial.begin(9600); // begin Serial connection
+          Serial.setTimeout(10); // set the timeout for parseInt
+          pinMode(5, OUTPUT);
+
+        }
+
+        void loop()
+        {
+          // Read values from joystick and send to P5.js
+          Serial.print(analogRead(A0));
+          Serial.print(",");
+          Serial.print(analogRead(A1));
+          Serial.println(",");
+          delay(100);
+
+        
+          if (Serial.available() > 0) {   // if there's serial data 
+            
+            int inByte = Serial.read(); // read it
+            Serial.write(inByte);  	// send it back out as raw binary data
+            analogWrite(5, inByte);	// use it to set the LED brightness
+            delay(50); // wait 
+            analogWrite(5, 0); // turn off LED
+        
+        }
+        }
+
+            </code></pre>
+    </div>
+    
+    
+
+    <div class = "header">
+
+      <p>P5.js code:</p>
+
+    </div>
+
+    <div class = "header">
+      <pre><code>
+    
+        const BAUD_RATE = 9600; // This should match the baud rate in your Arduino sketch
+
+        let port, connectBtn; // Declare global variables
+        
+        // Starting coordinates for the ball
+        let xcoord = 50; 
+        let ycoord = 50;
+
+        // Starting coordinates for the square
+        let sqx = 20;
+        let sqy = 20;
+
+
+        function setup() {
+          setupSerial(); // Run our serial setup function (below)
+
+          // Create a canvas that is the size of our browser window.
+          // windowWidth and windowHeight are p5 variables
+          createCanvas(windowWidth, windowHeight);
+          
+          
+          // p5 text settings. BOLD and CENTER are constants provided by p5.
+          // See the "Typography" section in the p5 reference: https://p5js.org/reference/
+          textFont("system-ui", 50);
+          textStyle(BOLD);
+          textAlign(CENTER, CENTER);
+        }
+
+        function draw() {
+          const portIsOpen = checkPort(); // Check whether the port is open (see checkPort function below)
+          if (!portIsOpen) return; // If the port is not open, exit the draw loop
+
+          let str = port.readUntil("\n"); // Read from the port until the newline
+          if (str.length == 0) return; // If we didn't read anything, return.
+        
+          let posArray = str.trim().split(","); // Trim whitespace and split on commas
+
+          clear(); // Clear the canvas
+          translate(windowWidth / 2, windowHeight / 2); // Move the origin to the center
+
+          
+          fill(500, 0, 0); // Make the circle red
+          circle(xcoord, ycoord,50) // Draw a circle at the defined coordinates with diameter 50
+          
+          fill(0,500,0); // Make the square green
+          square(sqx, sqy, 25); // Draw a square at the defined coordinates at size 25
+
+
+          // Convert each element to a number
+          const x = Number(posArray[0]);
+          const y = Number(posArray[1]);
+
+
+          // If the VRx value goes above the neutral amount (512) move left or right. 
+          // I added a small "dead zone" to make sure it wouldn't get accidentally triggered.
+          if(x>=525){
+            xcoord += 10;
+          }
+
+          if(x<=495){
+            xcoord -= 10;
+          }
+          
+
+          // If the VRy value goes above the neutral amount (512) move up or down. 
+          // I added a small "dead zone" to make sure it wouldn't get accidentally triggered.
+          if(y>=525){
+            ycoord += 10;
+          }
+
+          if(y<=495){
+            ycoord -= 10;
+          }
+
+
+          // If the ball's coordinates intersect with a range around the square's coordinates, 
+          //the square will move randomly within a range and the light function will activate.
+          if ((xcoord >= (sqx-30) && xcoord <= (sqx+30)) && (ycoord >= (sqy-30) && ycoord <= (sqy+30))){
+            sqx = Math.random() * 200;
+            sqy= Math.random() * 200;
+            light();
+          }
+        
+        }
+
+          // Three helper functions for managing the serial connection.
+
+          function setupSerial() {
+            port = createSerial();
+
+            // Check to see if there are any ports we have used previously
+            let usedPorts = usedSerialPorts();
+            if (usedPorts.length > 0) {
+              // If there are ports we've used, open the first one
+              port.open(usedPorts[0], BAUD_RATE);
+            }
+
+            // create a connect button
+            connectBtn = createButton("Connect to Arduino");
+            connectBtn.position(5, 5); // Position the button in the top left of the screen.
+            connectBtn.mouseClicked(onConnectButtonClicked); // When the button is clicked, run the onConnectButtonClicked function
+
+
+            
+          }
+
+        function checkPort() {
+          if (!port.opened()) {
+            // If the port is not open, change button text
+            connectBtn.html("Connect to Arduino");
+            // Set background to gray
+            background("gray");
+            return false;
+          } else {
+            // Otherwise we are connected
+            connectBtn.html("Disconnect");
+            return true;
+          }
+        }
+
+        function onConnectButtonClicked() {
+          // When the connect button is clicked
+          if (!port.opened()) {
+            // If the port is not opened, we open it
+            port.open(BAUD_RATE);
+          } else {
+            // Otherwise, we close it!
+            port.close();
+          }
+        }
+
+        //sends a value of 50 to the Arduino
+        function light() {
+          
+          port.write(50);
+          
+        }
+
+            </code></pre>
+    </div>
+
+   
+  </body>
+</html>
