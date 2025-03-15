@@ -11,30 +11,294 @@
   <body>
 
 
-    <h1>Reis Pestano's Final Project!</h1>
+    <h1>Reis Pestano's Final Project: PedalBox!</h1>
     
     
     <div class="header">
-      <p>Here is all the documentation for assignment 6:</p>
-    </div>
-
-    
-    
-    <div class="header">
-      <img src="Finalproj.png" />
-      
-    
+      <p><b>Concept and Motivation:</b></p>
+      <br>
       
     </div>
     <div class="header">
-      <img src="pedalbox.jpg" />
+      <p>PedalBox is a modular guitar effect pedal that can leverage the power of an arduino to drive user created breadboard modules.</p>
+      <br>
+      
+    </div>
+    <div class="header">
+      <p>I have enjoyed playing my electric guitar with various effects, but buying single effect pedals can be very expensive. I realized that since now I have some understanding of electronics, I could potentially make my own. 
+        
+      </p>
+      <br>
+      
+    </div>
+    
+    <div class="header">
+      <p>For the purposes of this project I needed to make an effect that would take advantage of the computational capabilities of the arduino, so I thought about creating a delay or chorus effect that often employ digital processing techniques.
+        However, I quickly realized that the Arduino UNO doesn't have quite enough computational power to record or modify sounds. With this limitation in mind, I shifted my focus to find an analog effect that could be controlled using the arduino.</p>
+      <br>
+      
+    </div>
+     
+    <div class="header">
+      <p>I settled on creating a tremolo feature that could be controlled using the arduino. I found online that people had created a tremolo effect using a photoresistor and a flashing light, so I thought it would be a perfect effect to build myself.</p>
+
+      <br>
+      
+    </div>
+
+    <div class="header">
+      <p>I also wanted to make a distortion module because I thought it would be fun to have that sound in combination with my tremolo effect. I had to do a lot of research to understand how a basic distortion pedal works, and a website I found very helpful was https://www.wamplerpedals.com/</p>
+
+      <br>
+      
+    </div>
+
+    <div class="header">
+      <p><b>Technical Implementation:</b></p>
+      <br>
+      
+    </div>
+    <div class="header">
+      <p> Tremolo module:
+       </p>
+      <br>
+    </div>
+    <div class="header">
+      <img src="tremcirc.jpg" />
+      
+    
+      
+    </div>
+    <div class="header">
+      <p> This image of the circuit doesn't include the potentiometers or switches because they are mounted to my box. The black object in the middle is my photoresistor taped to my LED to block outside light.
+       </p>
+      <br>
+    </div>
+    <div class="header">
+      <img src="tremschem.jpg" />
+    </div>
+
+    <div class="header">
+      <p> The tremolo effect consists of three parts, the LED, the potentiometer, and the photoresistor.
+       </p>
+      <br>
+    </div>
+
+    <div class="header">
+      <p> The arduino controls the LED's flashing pattern and speed through my firmware that takes serial readings from the potentiometer and maps them to a delay variable.
+       </p>
+      <br>
+    </div>
+
+    <div class="header">
+      <p> The guitar signal is sent through my circuit from point BBI. As more light is shown to the photoresistor, its resistance drops and more signal can pass to ground. 
+        As the light dims the photoresistor's resistance increases, so more signal makes it to the output (BBO). I put a 56nF capacitor between the input and ground to stop a high frequency buzz I heard without it.
+       </p>
+      <br>
+    </div>
+
+    <div class="header">
+      <p> Tremolo code:
+       </p>
+      <br>
+    </div>
+
+    <div class = "header">
+      <pre><code>
+    
+        int del = 100; // delay variable
+
+        void setup() {
+          // set up serial communication
+          Serial.begin(9600);
+          pinMode(9, OUTPUT);
+        }
+        
+        void loop() {
+          // print serial info from potentiometer
+          Serial.println(analogRead(A0));
+        
+          // map serial info to range from 50 to 500. I felt this range was reasonable for this effect, 
+          // but it can be changed if I want a faster or slower range.
+          del = map(analogRead(A0), 0, 1023, 50, 500);
+        
+          // simple on off pattern
+          digitalWrite(9,HIGH);
+          delay(del);
+          digitalWrite(9, LOW);
+          delay(del);
+        
+          
+          // "swing" rhythm I include in my demo video
+        
+          // digitalWrite(9,LOW);
+          // delay(del*2);
+          // digitalWrite(9, HIGH);
+          // delay(del);
+          // digitalWrite(9,LOW);
+          // delay(del);
+          // digitalWrite(9, HIGH);
+          // delay(del);
+          // digitalWrite(9,LOW);
+          // delay(del);
+          // digitalWrite(9, HIGH);
+          // delay(del*2);
+         
+        }
+
+            </code></pre>
+    </div>
+
+    <div class="header">
+      <p> Distortion module:
+       </p>
+      <br>
+    </div>
+
+
+    <div class="header">
+      <img src="distcirc.jpg" />
+      
+    
+      
+    </div>
+    <div class="header">
+      <p> This image of the circuit doesn't include the potentiometers or switches because they are mounted to my box. 
+       </p>
+      <br>
+    </div>
+    <div class="header">
+      <img src="distschematic.jpg" />
       
     
       
     </div>
 
-   
+    <div class="header">
+      <p>The bottom left portion of this schematic details how I wired the 3PDT switches to either go to my effect when engaged or bypass my breadboard modules when disengaged. 
+        When the effect is engaged, guitar signal goes in the middle left terminal and connects to the top left terminal which sends it into the breadboard circuit. 
+        The signal then comes back throught the top right terminal and out through the middle right terminal. When disengaged, the guitar signal goes straight through the switch without interacting with the effect circuit.</p>
 
+
+      <br>
+      
+    </div>
+
+    <div class="header">
+      <p>The top left portion of this schematic details the power section of my circuit. It is just a voltage divider that divides a 9V power supply into 4.5V for op amp biasing.</p>
+      <br>
+      
+    </div>
+
+    <div class="header">
+      <p>The right portion of this schematic details the distortion effect circuit. First the guitar signal goes in at the point labeled BBI. It then passes through a coupling capacitor and resistor that allows AC signal to pass while blocking DC. 
+       </p>
+
+
+      <br>
+      
+    </div>
+
+    <div class="header">
+      <p> When in series, these components act like a low pass filter that cuts high frequency sounds in accordance with this equation: f = 1/(2(pi)RC). 
+        These high frequency sounds can be irritating to listen to so it is useful to get rid of them this way.
+       </p>
+      <br>
+      
+    </div>
+
+    <div class="header">
+      <p> Next, the 4.5V are added to the signal to properly bias the signal so it has room to distort evenly when using 9V and ground for the op amp. 
+        According to the Wampler website, a 1M resistor here can help eliminate a popping sound when engaging the circuit.
+       </p>
+      <br>
+    </div>
+
+    <div class="header">
+      <p> The signal is then sent to the noninverting input of the op amp, sent through the output, and back through the inverting input to create a feedback loop that amplifies the signal.
+        A voltage divider can be made to regulate the amount of amplification using a potentiometer and another resistor. In this configuration, my circuit amplifies the input signal about 20.6x at max
+        according to this equation:  
+       </p>
+      <br>
+    </div>
+    
+    <div class="header">
+      <img src="gain.gif" />
+    </div>
+
+    <div class="header">
+      <p> From the output, the amplified signal is sent to another coupling capacitor resistor combination to take off more high frequencies, and out to another potentiometer
+         that controls the volume by sending some signal to ground and some to the output.
+       </p>
+      <br>
+    </div>
+    
+      <div class="header">
+        <p> Before going out, two Red LEDs act as "clipping diodes" that can distort the sound by clipping some of the wave if the output voltage from the op amp is strong enough to engage them.
+          For LEDs this is about 1.5V.
+         </p>
+        <br>
+      </div>
+
+
+      <div class="header">
+        <p> After I was finished designing my circuits and code, I began work on the enclosure and the interaction points.
+         </p>
+        <br>
+      </div>
+
+      
+      
+      <div class="header">
+        <p> I soldered my potentiometers, cable jacks, and switches with breadboard wires so they could be easily added to the breadboards wherever the circuit required them.
+         </p>
+        <br>
+      </div>
+<div class="header">
+        <img src="solder.jpg" />
+      </div>
+      
+      <div class="header">
+        <p> I then designed a box based on a template I found at <a href="https://www.pacdora.com/dielines?utm_source=googleads&utm_medium=search&gad_source=1&gclid=CjwKCAjwp8--BhBREiwAj7og1yLqIiZkVEfCnr-qPF-RZP4OBU_f0tmXxbmS8fPthmWXoyW8alDHXhoCFU8QAvD_BwE"> Pacdora.com</a>
+           and modified it in Adobe Illustrator. I cut it out with a laser cutter and inserted my electronics. The cardboard is fairly thick and sturdy, but it still allows me to open and close the box to interact with the electronics inside.
+         </p>
+        <br>
+      </div>
+      <div class="header">
+        <img src="lasercut.jpg" />
+      </div>
+      
+
+      <div class="header">
+        <p> I modeled the knobs in Onshape and 3D printed them.
+         </p>
+        <br>
+      </div>
+<div class="header">
+        <img src="boxtop.jpg" />
+      </div>
+      
+
+      <div class="header">
+        <p> Finally, I hooked up my breadboards and the Arduino to finish the project.
+         </p>
+        <br>
+      </div>
+      <div class="header">
+        <img src="insides.jpg" />
+      </div>
+        
+      <div class="header">
+        <p> <b>Demo Video</b>
+         </p>
+        <br>
+      </div>
+        <div class="header">
+          <br>
+          <p> <a href="https://youtu.be/RgAPMTL6ht4">Demo Video Link</a>
+           </p>
+          <br>
+        </div>
    
   </body>
 </html>
